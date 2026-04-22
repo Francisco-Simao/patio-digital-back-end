@@ -1,16 +1,37 @@
 package br.prf.patio_digital.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CpfInvalidoException.class)
-    public ResponseEntity<?> handleCpfInvalido(CpfInvalidoException ex) {
+    public ResponseEntity<?> tratarCpfInvalido(CpfInvalidoException ex) {
 
-        return ResponseEntity.status(403)
-                .body(new ErrorResponse(ex.getMessage(), 403));
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "erro", ex.getMessage(),
+                        "status", 400,
+                        "dataHora", LocalDateTime.now()
+                ));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> tratarErroGenerico(RuntimeException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "erro", ex.getMessage(),
+                        "status", 404,
+                        "dataHora", LocalDateTime.now()
+                ));
     }
 }

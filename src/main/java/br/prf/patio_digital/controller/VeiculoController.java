@@ -1,5 +1,7 @@
 package br.prf.patio_digital.controller;
 
+import br.prf.patio_digital.dto.DashboardResponse;
+import br.prf.patio_digital.dto.VeiculoConsultaResponse;
 import br.prf.patio_digital.dto.VeiculoRequest;
 import br.prf.patio_digital.dto.VeiculoResponse;
 import br.prf.patio_digital.model.StatusVeiculo;
@@ -7,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import br.prf.patio_digital.model.Veiculo;
 import br.prf.patio_digital.service.VeiculoService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/veiculos")
@@ -39,18 +43,11 @@ public class VeiculoController {
     }
 
     @GetMapping("/consulta")
-    public ResponseEntity<String> consultar(
+    public VeiculoConsultaResponse consultar(
             @RequestParam String placa,
             @RequestParam String cpf) {
 
-        Veiculo veiculo = service.consultarVeiculo(placa, cpf);
-
-        double valor = service.calcularValorTotal(veiculo);
-
-        String resposta = "Status: " + veiculo.getStatus() +
-                " | Valor atualizado: R$ " + valor;
-
-        return ResponseEntity.ok(resposta);
+        return service.consultar(placa, cpf);
     }
 
     @PostMapping
@@ -78,4 +75,24 @@ public class VeiculoController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping
+    public List<Veiculo> listarTodos() {
+        return service.listarTodos();
+    }
+
+    @PutMapping("/{placa}/status")
+    public Veiculo alterarStatus(
+            @PathVariable String placa,
+            @RequestParam StatusVeiculo status) {
+
+        return service.alterarStatus(placa, status);
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping("/dashboard")
+    public DashboardResponse dashboard() {
+        return service.gerarDashboard();
+    }
+
 }
